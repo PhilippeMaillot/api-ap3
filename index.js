@@ -31,7 +31,6 @@ app.use(cors());
 app.use(cookieParser());
 
 // Options de stockage pour Multer
-// Configuration de l'upload avec Multer
 const upload = multer({ storage: './img' });
 
 // Route pour ajouter un produit
