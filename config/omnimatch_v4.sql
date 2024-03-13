@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : ven. 01 mars 2024 à 11:27
+-- Généré le : lun. 11 mars 2024 à 08:49
 -- Version du serveur : 10.4.27-MariaDB
 -- Version de PHP : 8.1.12
 
@@ -38,6 +38,44 @@ CREATE TABLE `bet` (
   `bet_prediction` varchar(255) DEFAULT NULL CHECK (`bet_prediction` in ('victoire','defaite')),
   `id_user` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `cart`
+--
+
+CREATE TABLE `cart` (
+  `id_cart` int(11) NOT NULL,
+  `id_user` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `cart`
+--
+
+INSERT INTO `cart` (`id_cart`, `id_user`) VALUES
+(1, 12);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `cart_items`
+--
+
+CREATE TABLE `cart_items` (
+  `id_cart_item` int(11) NOT NULL,
+  `id_cart` int(11) DEFAULT NULL,
+  `id_product` int(11) DEFAULT NULL,
+  `item_quantity` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `cart_items`
+--
+
+INSERT INTO `cart_items` (`id_cart_item`, `id_cart`, `id_product`, `item_quantity`) VALUES
+(2, 1, 13, 4);
 
 -- --------------------------------------------------------
 
@@ -122,7 +160,16 @@ INSERT INTO `mobile_user` (`id_user`, `user_f_name`, `user_name`, `email`, `pass
 (6, 'Doe', 'John', 'jdoe@gmail.com', '$2b$10$slTbgqJeS7sLQNbhz97D.OxodpTi/ctIguin5EaAk3lVpKKhxUA4y', 1, '65'),
 (7, 'Sanders', 'Johakim', 'jsanders@gmail.com', '$2b$10$ZjNwxY70Q3D2Xn0qwryeROGhXWTLH8VeGWKo8XBP90pIfLcEJTbYe', 1, '65'),
 (9, 'p', 'm', 'p@m.com', '$2b$10$dHTpiqylY/WF/aY6drHIo.4oUWQu8S9jkScYEXkzhWYd/0.YoWT/G', 1, '50'),
-(10, 'm', 'p', 'mm@p.com', '$2b$10$2QymzeimRF6/nO.yx6.f4ONWDGnjyKsLfZiIvsLCMMECdLHDpyPAO', 1, '50');
+(10, 'm', 'p', 'mm@p.com', '$2b$10$2QymzeimRF6/nO.yx6.f4ONWDGnjyKsLfZiIvsLCMMECdLHDpyPAO', 1, '50'),
+(12, 'Maillot', 'Philippe', 'mp@gmail.com', '$2b$10$SyHhFbkk4z.eY6YKK7P6JOuNpAOjO4M.Qrg3yL/hJ/mKLUyAij3u6', 1, '50');
+
+--
+-- Déclencheurs `mobile_user`
+--
+DELIMITER $$
+CREATE TRIGGER `create_cart_after_user_insert` AFTER INSERT ON `mobile_user` FOR EACH ROW INSERT INTO cart (id_user) VALUES (NEW.id_user)
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -144,8 +191,6 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`id_product`, `product_title`, `product_description`, `product_price`, `product_img`, `stock`) VALUES
-(4, 'Sweat Omnibet', 'Sweat omnibet officiel pour supporter vos équipe préférées', 35, 'img.png', 50),
-(6, 'Sweat Omnimatch', 'Sweat Omnimatch officiel pour supporter vos équipe préférées', 30, 'img.png', 100),
 (7, 'Sweat rouge', 'Sweat rouge stylé', 15, 'img.png', 150),
 (10, 'Sweat jaune', 'Sweat jaune stylé', 15, 'img.png', 150),
 (12, 'T-shirt Omnimatch', 't-shirt Omnimatch', 25, 'img.png', 10),
@@ -154,6 +199,14 @@ INSERT INTO `product` (`id_product`, `product_title`, `product_description`, `pr
 (15, 'T-shirt vert', 't-shirt vert', 10, 'img.png', 200),
 (16, 'T-shirt jaune', 't-shirt jaune', 10, 'img.png', 200),
 (17, 'T-shirt cyan', 't-shirt cyan', 10, 'img.png', 200);
+
+--
+-- Déclencheurs `product`
+--
+DELIMITER $$
+CREATE TRIGGER `delete_from_cart` BEFORE DELETE ON `product` FOR EACH ROW DELETE FROM cart_items WHERE id_product = OLD.id_product
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -375,7 +428,8 @@ INSERT INTO `tournament` (`id_tournament`, `tournament_name`, `tournament_date`,
 (28, 'Test tournois du 26/02/2024', '2024-02-26', 243),
 (29, 'Test tournois du 27/02/2024', '2024-02-27', 335),
 (30, 'test postman 2', '2023-07-23', 335),
-(33, 'Tournois du 28/06/2024', '2024-06-28', 367);
+(34, 'test ', '2024-03-13', 335),
+(37, 'Test tournois du 31/03/2024', '2024-03-31', 325);
 
 --
 -- Déclencheurs `tournament`
@@ -410,20 +464,21 @@ CREATE TABLE `tournamentparticipation` (
 --
 
 INSERT INTO `tournamentparticipation` (`id_participation`, `id_club`, `id_tournament`) VALUES
-(249, 135, 30),
-(256, 137, 28),
-(260, 125, 28),
-(296, 118, 30),
-(297, 119, 30),
-(312, 133, 29),
-(313, 134, 29),
-(314, 135, 29),
-(315, 136, 29),
-(316, 151, 29),
-(317, 120, 33),
-(318, 142, 33),
-(319, 130, 33),
-(320, 144, 33);
+(323, 118, 34),
+(324, 119, 34),
+(325, 132, 34),
+(326, 133, 34),
+(329, 134, 30),
+(330, 135, 30),
+(331, 136, 30),
+(332, 147, 30),
+(333, 148, 30),
+(334, 149, 30),
+(338, 123, 28),
+(339, 124, 28),
+(340, 125, 28),
+(352, 147, 29),
+(353, 148, 29);
 
 -- --------------------------------------------------------
 
@@ -498,19 +553,6 @@ INSERT INTO `town` (`id_town`, `town_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `trainingreservation`
---
-
-CREATE TABLE `trainingreservation` (
-  `id_reservation` int(11) NOT NULL,
-  `id_club` int(11) NOT NULL,
-  `id_field` int(11) NOT NULL,
-  `training_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Structure de la table `users`
 --
 
@@ -548,6 +590,21 @@ ALTER TABLE `bet`
   ADD KEY `id_tournament` (`id_tournament`),
   ADD KEY `id_club` (`id_club`),
   ADD KEY `id_user` (`id_user`);
+
+--
+-- Index pour la table `cart`
+--
+ALTER TABLE `cart`
+  ADD PRIMARY KEY (`id_cart`),
+  ADD KEY `id_user` (`id_user`);
+
+--
+-- Index pour la table `cart_items`
+--
+ALTER TABLE `cart_items`
+  ADD PRIMARY KEY (`id_cart_item`),
+  ADD KEY `id_product` (`id_product`),
+  ADD KEY `fk_cart_items_cart` (`id_cart`);
 
 --
 -- Index pour la table `clubs`
@@ -599,14 +656,6 @@ ALTER TABLE `town`
   ADD KEY `town_name` (`town_name`);
 
 --
--- Index pour la table `trainingreservation`
---
-ALTER TABLE `trainingreservation`
-  ADD PRIMARY KEY (`id_reservation`),
-  ADD KEY `id_club` (`id_club`),
-  ADD KEY `id_field` (`id_field`);
-
---
 -- Index pour la table `users`
 --
 ALTER TABLE `users`
@@ -624,6 +673,18 @@ ALTER TABLE `bet`
   MODIFY `id_bet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT pour la table `cart`
+--
+ALTER TABLE `cart`
+  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT pour la table `cart_items`
+--
+ALTER TABLE `cart_items`
+  MODIFY `id_cart_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT pour la table `clubs`
 --
 ALTER TABLE `clubs`
@@ -633,7 +694,7 @@ ALTER TABLE `clubs`
 -- AUTO_INCREMENT pour la table `mobile_user`
 --
 ALTER TABLE `mobile_user`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT pour la table `product`
@@ -651,25 +712,19 @@ ALTER TABLE `sportfields`
 -- AUTO_INCREMENT pour la table `tournament`
 --
 ALTER TABLE `tournament`
-  MODIFY `id_tournament` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id_tournament` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT pour la table `tournamentparticipation`
 --
 ALTER TABLE `tournamentparticipation`
-  MODIFY `id_participation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=321;
+  MODIFY `id_participation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=354;
 
 --
 -- AUTO_INCREMENT pour la table `town`
 --
 ALTER TABLE `town`
   MODIFY `id_town` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
-
---
--- AUTO_INCREMENT pour la table `trainingreservation`
---
-ALTER TABLE `trainingreservation`
-  MODIFY `id_reservation` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `users`
@@ -688,6 +743,20 @@ ALTER TABLE `bet`
   ADD CONSTRAINT `bet_ibfk_1` FOREIGN KEY (`id_tournament`) REFERENCES `tournament` (`id_tournament`),
   ADD CONSTRAINT `bet_ibfk_2` FOREIGN KEY (`id_club`) REFERENCES `clubs` (`id_club`),
   ADD CONSTRAINT `bet_ibfk_3` FOREIGN KEY (`id_user`) REFERENCES `mobile_user` (`id_user`);
+
+--
+-- Contraintes pour la table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `mobile_user` (`id_user`);
+
+--
+-- Contraintes pour la table `cart_items`
+--
+ALTER TABLE `cart_items`
+  ADD CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`id_cart`) REFERENCES `cart` (`id_cart`),
+  ADD CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`id_product`) REFERENCES `product` (`id_product`),
+  ADD CONSTRAINT `fk_cart_items_cart` FOREIGN KEY (`id_cart`) REFERENCES `cart` (`id_cart`);
 
 --
 -- Contraintes pour la table `clubs`
@@ -713,13 +782,6 @@ ALTER TABLE `tournament`
 ALTER TABLE `tournamentparticipation`
   ADD CONSTRAINT `tournamentparticipation_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `clubs` (`id_club`),
   ADD CONSTRAINT `tournamentparticipation_ibfk_2` FOREIGN KEY (`id_tournament`) REFERENCES `tournament` (`id_tournament`);
-
---
--- Contraintes pour la table `trainingreservation`
---
-ALTER TABLE `trainingreservation`
-  ADD CONSTRAINT `trainingreservation_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `clubs` (`id_club`),
-  ADD CONSTRAINT `trainingreservation_ibfk_2` FOREIGN KEY (`id_field`) REFERENCES `sportfields` (`id_field`);
 
 --
 -- Contraintes pour la table `users`
