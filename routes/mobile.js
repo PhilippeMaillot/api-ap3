@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mobileController = require("../controllers/mobileController");
 
-router.get("/", tournamentController.getAllUsers);
+router.get("/", mobileController.getAllUsers);
 
 router.post("/add", mobileController.addUser);
 
