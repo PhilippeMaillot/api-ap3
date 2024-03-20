@@ -2,11 +2,6 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 
 class MobileModel {
-    static getAllUsers = async (cb) => {
-        const query = "SELECT * FROM mobile_user";
-        db.query(query, cb);
-    };
-
     static addUser = async (user_f_name, user_name, email, password_hash, role, balance) => {
         const query = "INSERT INTO mobile_user (user_f_name, user_name, email, password_hash, role, balance) VALUES (?, ?, ?, ?, ?, ?)";
         await db.query(query, [user_f_name, user_name, email, password_hash, role, balance]);

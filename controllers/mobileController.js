@@ -2,22 +2,6 @@ const model = require("../models/mobileModel");
 const bcrypt = require('bcrypt');
 
 class MobileController {
-    static getAllUsers = async (res) => {
-        try {
-            model.getAllUsers((err, results) => {
-                if (err) {
-                    console.error(err);
-                    res.status(500).json({ error: "Erreur serveur" });
-                } else {
-                    res.status(200).json(results);
-                }
-            });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
-        }
-    };
-
     static addUser = async (req, res) => {
         console.log(req.body);
         try {
